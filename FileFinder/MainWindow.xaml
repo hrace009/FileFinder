@@ -99,7 +99,17 @@
 
             <!-- ── Left: Input Panel ─────────────────────────────────────── -->
             <DockPanel Grid.Column="0">
-                <GroupBox DockPanel.Dock="Top" Header="📋  Daftar Nama File">
+                <GroupBox DockPanel.Dock="Top">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋  Daftar Nama File"/>
+                            <Border Background="#1565C0" CornerRadius="8" Padding="6,1" Margin="8,0,0,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Foreground="White" FontSize="11" FontWeight="SemiBold"
+                                           Text="{Binding InputLineCount, StringFormat='{}{0} baris'}"/>
+                            </Border>
+                        </StackPanel>
+                    </GroupBox.Header>
                     <DockPanel>
                         <!-- Buttons -->
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,6,0,0">
@@ -312,10 +322,7 @@
                             <MenuItem Header="📄 Copy Nama File"
                                       Command="{Binding PlacementTarget.DataContext.CopyFileNameCommand,
                                                 RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                            <Separator/>
-                            <MenuItem Header="🔢 Lihat Semua Lokasi (jika multiple)"
-                                      Command="{Binding PlacementTarget.DataContext.ShowAllMatchesCommand,
-                                                RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+
                         </ContextMenu>
                     </DataGrid.ContextMenu>
 

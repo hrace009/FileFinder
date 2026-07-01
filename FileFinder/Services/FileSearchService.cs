@@ -74,30 +74,28 @@ namespace FileFinder.Services
                 if (matches.Count == 0)
                 {
                     result.Status = SearchStatus.NotFound;
-                }
-                else if (matches.Count == 1)
-                {
-                    var m = matches[0];
-                    result.Status = SearchStatus.Found;
-                    result.FoundFileName = m.FileName;
-                    result.FullPath = m.FullPath;
-                    result.FileSize = GetFileSize(m.FullPath);
-                    result.ModifiedDate = GetModifiedDate(m.FullPath);
-                    result.AllMatches.Add(m.FullPath);
+                    yield return result;
+                    await Task.Yield();
                 }
                 else
                 {
-                    var first = matches[0];
-                    result.Status = SearchStatus.MultipleFound;
-                    result.FoundFileName = first.FileName;
-                    result.FullPath = first.FullPath;
-                    result.FileSize = GetFileSize(first.FullPath);
-                    result.ModifiedDate = GetModifiedDate(first.FullPath);
-                    result.AllMatches.AddRange(matches.Select(m => m.FullPath));
+                    foreach (var m in matches)
+                    {
+                        var r = new SearchResult
+                        {
+                            RowNumber = i + 1,
+                            InputName = inputName,
+                            Status = SearchStatus.Found,
+                            FoundFileName = m.FileName,
+                            FullPath = m.FullPath,
+                            FileSize = GetFileSize(m.FullPath),
+                            ModifiedDate = GetModifiedDate(m.FullPath),
+                        };
+                        r.AllMatches.Add(m.FullPath);
+                        yield return r;
+                        await Task.Yield();
+                    }
                 }
-
-                yield return result;
-                await Task.Yield();
             }
         }
 

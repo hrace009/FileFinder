@@ -26,8 +26,18 @@ namespace FileFinder.ViewModels
         public string InputText
         {
             get => _inputText;
-            set { _inputText = value; OnPropertyChanged(); }
+            set
+            {
+                _inputText = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(InputLineCount));
+            }
         }
+
+        public int InputLineCount =>
+            string.IsNullOrWhiteSpace(_inputText)
+                ? 0
+                : _inputText.Split('\n').Count(l => l.Trim().Length > 0);
 
         // ── Search Paths ──────────────────────────────────────────────────────
         public ObservableCollection<string> SearchPaths { get; } = new();
@@ -222,7 +232,7 @@ namespace FileFinder.ViewModels
                     Results.Add(result);
                 }
 
-                int found = Results.Count(r => r.Status == SearchStatus.Found || r.Status == SearchStatus.MultipleFound);
+                int found = Results.Count(r => r.Status == SearchStatus.Found);
                 int notFound = Results.Count(r => r.Status == SearchStatus.NotFound);
                 SummaryText = $"Selesai — Ditemukan: {found}  |  Tidak Ditemukan: {notFound}  |  Total: {Results.Count}";
                 StatusText = "Pencarian selesai.";
@@ -230,7 +240,7 @@ namespace FileFinder.ViewModels
             catch (OperationCanceledException)
             {
                 StatusText = "Pencarian dibatalkan.";
-                SummaryText = $"Dibatalkan — Ditemukan: {Results.Count(r => r.Status == SearchStatus.Found || r.Status == SearchStatus.MultipleFound)} dari {Results.Count} yang sudah diproses.";
+                SummaryText = $"Dibatalkan — Ditemukan: {Results.Count(r => r.Status == SearchStatus.Found)} dari {Results.Count} yang sudah diproses.";
             }
             catch (Exception ex)
             {
