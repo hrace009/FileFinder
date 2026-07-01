@@ -1,0 +1,43 @@
+## .NET / C# / WPF
+
+# Build output
+[Bb]in/
+[Oo]bj/
+out/
+publish/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Test results
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Log files
+*.log
+*.tmp
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Publish profiles
+**/Properties/PublishProfiles/
