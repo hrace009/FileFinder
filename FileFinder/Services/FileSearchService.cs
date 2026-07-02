@@ -42,11 +42,15 @@ namespace FileFinder.Services
             var comparer = config.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
             var comparison = config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
+            var folderFilter = new HashSet<string>(
+                config.FolderFilter.Where(f => !string.IsNullOrWhiteSpace(f)),
+                comparer);
+
             // ── Phase 1: build file index from all paths ────────────────────
             progress?.Report(new SearchProgress(0, total, "Membangun indeks...", "", IsIndexing: true));
 
             var fileIndex = await BuildFileIndexAsync(
-                config.SearchPaths, config.Recursive, extFilter, comparer,
+                config.SearchPaths, config.Recursive, extFilter, folderFilter, comparer,
                 (scanned, path) => progress?.Report(
                     new SearchProgress(0, total, "Mengindeks...", path,
                         IsIndexing: true, FilesScanned: scanned)),
@@ -106,6 +110,7 @@ namespace FileFinder.Services
                 List<string> searchPaths,
                 bool recursive,
                 HashSet<string> extFilter,
+                HashSet<string> folderFilter,
                 StringComparer comparer,
                 Action<long, string> onProgress,
                 CancellationToken ct)
@@ -143,6 +148,14 @@ namespace FileFinder.Services
                         {
                             string ext = Path.GetExtension(filePath).ToLowerInvariant();
                             if (!extFilter.Contains(ext)) continue;
+                        }
+
+                        if (folderFilter.Count > 0)
+                        {
+                            string dir = Path.GetDirectoryName(filePath) ?? string.Empty;
+                            bool inFolder = dir.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                               .Any(seg => folderFilter.Contains(seg));
+                            if (!inFolder) continue;
                         }
 
                         string fileName = Path.GetFileName(filePath);

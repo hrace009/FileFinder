@@ -20,5 +20,11 @@ namespace FileFinder.Models
         /// Optional extension filter, e.g. [".pdf", ".docx"]. Empty = all types.
         /// </summary>
         public List<string> ExtensionFilter { get; set; } = new();
+
+        /// <summary>
+        /// Optional folder name filter. When non-empty, only files inside a directory
+        /// whose name matches one of these values will be indexed. Empty = all folders.
+        /// </summary>
+        public List<string> FolderFilter { get; set; } = new();
     }
 }

@@ -92,6 +92,13 @@ namespace FileFinder.ViewModels
             set { _extensionFilter = value; OnPropertyChanged(); }
         }
 
+        private string _folderFilter = string.Empty;
+        public string FolderFilter
+        {
+            get => _folderFilter;
+            set { _folderFilter = value; OnPropertyChanged(); }
+        }
+
         // ── State ─────────────────────────────────────────────────────────────
         private bool _isSearching = false;
         public bool IsSearching
@@ -213,7 +220,8 @@ namespace FileFinder.ViewModels
                 SearchType = SelectedSearchType,
                 Recursive = IsRecursive,
                 CaseSensitive = IsCaseSensitive,
-                ExtensionFilter = ParseExtensions(ExtensionFilter)
+                ExtensionFilter = ParseExtensions(ExtensionFilter),
+                FolderFilter = ParseFolderFilter(FolderFilter)
             };
 
             var progress = new Progress<SearchProgress>(p =>
@@ -510,6 +518,18 @@ namespace FileFinder.ViewModels
             return input
                 .Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(e => e.StartsWith('.') ? e : "." + e)
+                .ToList();
+        }
+
+        private static List<string> ParseFolderFilter(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return new();
+
+            return input
+                .Split(new[] { '\n', '\r', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(f => f.Trim())
+                .Where(f => f.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
 

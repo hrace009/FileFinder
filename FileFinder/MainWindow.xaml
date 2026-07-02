@@ -243,6 +243,17 @@
                                          ToolTip="Contoh: .pdf .docx .xlsx — dipisah spasi atau koma"/>
                                 <TextBlock Text="Contoh: .pdf .docx .xlsx"
                                            FontSize="10" Foreground="#90A4AE" Margin="0,2"/>
+                                <TextBlock Text="Filter nama folder (kosong = semua folder):"
+                                           FontSize="11" Foreground="#607D8B" Margin="0,6,0,2"/>
+                                <TextBox Text="{Binding FolderFilter, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="12" Padding="4" BorderBrush="#B0BEC5"
+                                         AcceptsReturn="True"
+                                         MinHeight="52" MaxHeight="100"
+                                         VerticalScrollBarVisibility="Auto"
+                                         IsEnabled="{Binding IsNotSearching}"
+                                         ToolTip="Nama folder yang dicari, satu per baris atau dipisah koma. Contoh: Archive, 2024"/>
+                                <TextBlock Text="Contoh: Archive, 2024, Reports"
+                                           FontSize="10" Foreground="#90A4AE" Margin="0,2"/>
                             </StackPanel>
                         </GroupBox>
 
