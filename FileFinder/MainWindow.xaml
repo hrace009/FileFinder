@@ -112,15 +112,25 @@
                     </GroupBox.Header>
                     <DockPanel>
                         <!-- Buttons -->
-                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,6,0,0">
-                            <Button Content="📂 Import TXT/CSV"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Command="{Binding ImportCommand}"
-                                    ToolTip="Import daftar nama dari file TXT atau CSV"/>
-                            <Button Content="🗑 Hapus"
-                                    Style="{StaticResource DangerButton}"
-                                    Command="{Binding ClearInputCommand}"
-                                    ToolTip="Hapus semua nama"/>
+                        <StackPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="&#x1F4C2; Import TXT/CSV"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding ImportCommand}"
+                                        ToolTip="Import daftar nama dari file TXT atau CSV"/>
+                                <Button Content="&#x1F5C1; Dari Folder"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding ImportFromFolderCommand}"
+                                        ToolTip="Gunakan nama file dalam suatu folder sebagai daftar pencarian"/>
+                                <Button Content="&#x1F5D1; Hapus"
+                                        Style="{StaticResource DangerButton}"
+                                        Command="{Binding ClearInputCommand}"
+                                        ToolTip="Hapus semua nama"/>
+                            </StackPanel>
+                            <CheckBox Content="Rekursif (termasuk semua subfolder)"
+                                      IsChecked="{Binding ImportFolderRecursive}"
+                                      Margin="2,5,0,0" FontSize="11" Foreground="#546E7A"
+                                      ToolTip="Jika dicentang, 'Dari Folder' akan menyertakan file dari semua subfolder"/>
                         </StackPanel>
                         <TextBlock DockPanel.Dock="Bottom"
                                    Text="Satu nama per baris. Mendukung wildcard (*.pdf)"

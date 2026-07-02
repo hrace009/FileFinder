@@ -39,6 +39,13 @@ namespace FileFinder.ViewModels
                 ? 0
                 : _inputText.Split('\n').Count(l => l.Trim().Length > 0);
 
+        private bool _importFolderRecursive = false;
+        public bool ImportFolderRecursive
+        {
+            get => _importFolderRecursive;
+            set { _importFolderRecursive = value; OnPropertyChanged(); }
+        }
+
         // ── Search Paths ──────────────────────────────────────────────────────
         public ObservableCollection<string> SearchPaths { get; } = new();
 
@@ -154,6 +161,7 @@ namespace FileFinder.ViewModels
         public ICommand CopyFullPathCommand { get; }
         public ICommand CopyFileNameCommand { get; }
         public ICommand ShowAllMatchesCommand { get; }
+        public ICommand ImportFromFolderCommand { get; }
 
         public MainViewModel()
         {
@@ -170,6 +178,7 @@ namespace FileFinder.ViewModels
             CopyFullPathCommand = new RelayCommand(ExecuteCopyFullPath, () => SelectedResult?.FullPath != null);
             CopyFileNameCommand = new RelayCommand(ExecuteCopyFileName, () => SelectedResult?.FoundFileName != null);
             ShowAllMatchesCommand = new RelayCommand(ExecuteShowAllMatches, () => SelectedResult?.Status == SearchStatus.MultipleFound);
+            ImportFromFolderCommand = new RelayCommand(ExecuteImportFromFolder, () => IsNotSearching);
         }
 
         // ── Command Implementations ───────────────────────────────────────────
@@ -260,6 +269,61 @@ namespace FileFinder.ViewModels
         {
             _cts?.Cancel();
             StatusText = "Membatalkan...";
+        }
+
+        private void ExecuteImportFromFolder()
+        {
+            var dlg = new OpenFolderDialog
+            {
+                Title = "Pilih Folder Sumber — nama file dalam folder ini akan dijadikan daftar pencarian"
+            };
+
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                var searchOption = ImportFolderRecursive
+                    ? SearchOption.AllDirectories
+                    : SearchOption.TopDirectoryOnly;
+
+                var files = Directory.GetFiles(dlg.FolderName, "*", searchOption)
+                    .Select(f => Path.GetFileNameWithoutExtension(f))
+                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(n => n)
+                    .ToList();
+
+                if (files.Count == 0)
+                {
+                    MessageBox.Show("Tidak ada file ditemukan di folder tersebut.", "Info",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                string folderName = Path.GetFileName(dlg.FolderName.TrimEnd(Path.DirectorySeparatorChar));
+                string modeLabel = ImportFolderRecursive ? " (rekursif)" : "";
+                bool replace = true;
+                if (!string.IsNullOrWhiteSpace(InputText))
+                {
+                    var answer = MessageBox.Show(
+                        $"Ditemukan {files.Count} file di '{folderName}'{modeLabel}.\n\nGanti daftar yang ada, atau tambahkan?",
+                        "Import dari Folder",
+                        MessageBoxButton.YesNoCancel,
+                        MessageBoxImage.Question);
+
+                    if (answer == MessageBoxResult.Cancel) return;
+                    replace = answer == MessageBoxResult.Yes;
+                }
+
+                string newText = string.Join(Environment.NewLine, files);
+                InputText = replace ? newText : InputText.TrimEnd() + Environment.NewLine + newText;
+                StatusText = $"{(replace ? "Imported" : "Ditambahkan")} {files.Count} nama dari folder '{folderName}'{modeLabel}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal membaca folder: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ExecuteImport()
