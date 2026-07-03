@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using FileFinder.Models;
 using FileFinder.Services;
@@ -147,6 +148,29 @@ namespace FileFinder.ViewModels
         // ── Results ───────────────────────────────────────────────────────────
         public ObservableCollection<SearchResult> Results { get; } = new();
 
+        private readonly ListCollectionView _resultsView;
+        /// <summary>Wrapped view of Results that supports grouping.</summary>
+        public ListCollectionView ResultsView => _resultsView;
+
+        private bool _isGroupedByFileName = false;
+        public bool IsGroupedByFileName
+        {
+            get => _isGroupedByFileName;
+            set
+            {
+                _isGroupedByFileName = value;
+                OnPropertyChanged();
+                ApplyResultsGrouping();
+            }
+        }
+
+        private void ApplyResultsGrouping()
+        {
+            _resultsView.GroupDescriptions.Clear();
+            if (_isGroupedByFileName)
+                _resultsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SearchResult.FoundFileName)));
+        }
+
         private SearchResult? _selectedResult;
         public SearchResult? SelectedResult
         {
@@ -172,6 +196,7 @@ namespace FileFinder.ViewModels
 
         public MainViewModel()
         {
+            _resultsView = new ListCollectionView(Results);
             SearchCommand = new RelayCommand(ExecuteSearch, () => IsNotSearching && SearchPaths.Count > 0 && !string.IsNullOrWhiteSpace(InputText));
             CancelCommand = new RelayCommand(ExecuteCancel, () => IsSearching);
             ClearInputCommand = new RelayCommand(() => InputText = string.Empty, () => IsNotSearching);

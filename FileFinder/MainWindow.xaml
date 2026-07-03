@@ -285,6 +285,12 @@
                         Padding="6,4">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <CheckBox Content="🗂 Kelompokkan nama file sama"
+                                      IsChecked="{Binding IsGroupedByFileName}"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,8,0"
+                                      FontSize="12"
+                                      ToolTip="Kelompokkan baris hasil yang memiliki nama file ditemukan yang sama"/>
                             <Button Content="📊 Export CSV"
                                     Style="{StaticResource SecondaryButton}"
                                     Command="{Binding ExportCsvCommand}"
@@ -302,7 +308,7 @@
                 </Border>
 
                 <!-- DataGrid -->
-                <DataGrid ItemsSource="{Binding Results}"
+                <DataGrid ItemsSource="{Binding ResultsView}"
                           SelectedItem="{Binding SelectedResult}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
@@ -318,6 +324,30 @@
                           EnableRowVirtualization="True"
                           VirtualizingPanel.IsVirtualizing="True"
                           VirtualizingPanel.VirtualizationMode="Recycling">
+
+                    <DataGrid.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <Border Background="#E3F2FD" BorderBrush="#BBDEFB"
+                                            BorderThickness="0,0,0,1" Padding="8,5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📄 " FontSize="12"/>
+                                            <TextBlock FontWeight="SemiBold" FontSize="12"
+                                                       Foreground="#1565C0"
+                                                       Text="{Binding Name, TargetNullValue='(Tidak Ditemukan)'}"/>
+                                            <Border Background="#1565C0" CornerRadius="8"
+                                                    Padding="5,1" Margin="8,0,0,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Foreground="White" FontSize="10" FontWeight="SemiBold"
+                                                           Text="{Binding ItemCount, StringFormat='{}{0} file'}"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </DataGrid.GroupStyle>
 
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
