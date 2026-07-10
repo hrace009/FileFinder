@@ -169,6 +169,21 @@ namespace FileFinder.ViewModels
             _resultsView.GroupDescriptions.Clear();
             if (_isGroupedByFileName)
                 _resultsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SearchResult.FoundFileName)));
+            OnPropertyChanged(nameof(DuplicateGroupText));
+        }
+
+        /// <summary>Count of distinct FoundFileName values that appear in 2+ results. Non-empty only when grouping is active.</summary>
+        public string DuplicateGroupText
+        {
+            get
+            {
+                if (!_isGroupedByFileName || Results.Count == 0) return string.Empty;
+                int dup = Results
+                    .Where(r => r.FoundFileName != null)
+                    .GroupBy(r => r.FoundFileName!, StringComparer.OrdinalIgnoreCase)
+                    .Count(g => g.Count() > 1);
+                return dup > 0 ? $"  |  Nama File Sama: {dup}" : string.Empty;
+            }
         }
 
         private SearchResult? _selectedResult;
@@ -197,6 +212,7 @@ namespace FileFinder.ViewModels
         public MainViewModel()
         {
             _resultsView = new ListCollectionView(Results);
+            Results.CollectionChanged += (_, _) => OnPropertyChanged(nameof(DuplicateGroupText));
             SearchCommand = new RelayCommand(ExecuteSearch, () => IsNotSearching && SearchPaths.Count > 0 && !string.IsNullOrWhiteSpace(InputText));
             CancelCommand = new RelayCommand(ExecuteCancel, () => IsSearching);
             ClearInputCommand = new RelayCommand(() => InputText = string.Empty, () => IsNotSearching);
@@ -274,15 +290,32 @@ namespace FileFinder.ViewModels
                     Results.Add(result);
                 }
 
-                int found = Results.Count(r => r.Status == SearchStatus.Found);
-                int notFound = Results.Count(r => r.Status == SearchStatus.NotFound);
-                SummaryText = $"Selesai — Ditemukan: {found}  |  Tidak Ditemukan: {notFound}  |  Total: {Results.Count}";
+                int found = Results
+                    .Where(r => r.Status == SearchStatus.Found)
+                    .Select(r => r.InputName)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
+                int notFound = Results
+                    .Where(r => r.Status == SearchStatus.NotFound)
+                    .Select(r => r.InputName)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
+                SummaryText = $"Selesai — Ditemukan: {found}  |  Tidak Ditemukan: {notFound}  |  Total: {names.Count}";
                 StatusText = "Pencarian selesai.";
             }
             catch (OperationCanceledException)
             {
                 StatusText = "Pencarian dibatalkan.";
-                SummaryText = $"Dibatalkan — Ditemukan: {Results.Count(r => r.Status == SearchStatus.Found)} dari {Results.Count} yang sudah diproses.";
+                int cancelFound = Results
+                    .Where(r => r.Status == SearchStatus.Found)
+                    .Select(r => r.InputName)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
+                int cancelProcessed = Results
+                    .Select(r => r.InputName)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
+                SummaryText = $"Dibatalkan — Ditemukan: {cancelFound} dari {cancelProcessed} yang sudah diproses.";
             }
             catch (Exception ex)
             {

@@ -26,7 +26,7 @@
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="🔍" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <StackPanel>
-                        <TextBlock Text="FileFinder" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="PIMS - Project Documentation FileFinder" FontSize="18" FontWeight="Bold" Foreground="White"/>
                         <TextBlock Text="Cari file di folder, shared folder, atau mapped drive"
                                    FontSize="11" Foreground="#BBDEFB"/>
                     </StackPanel>
@@ -45,11 +45,16 @@
                 Background="#ECEFF1" BorderBrush="#CFD8DC" BorderThickness="0,1,0,0"
                 Padding="10,5">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Right"
-                           Text="{Binding SummaryText}"
-                           FontWeight="SemiBold" FontSize="12"
-                           Foreground="#1565C0"
-                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SummaryText}"
+                               FontWeight="SemiBold" FontSize="12"
+                               Foreground="#1565C0"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding DuplicateGroupText}"
+                               FontWeight="SemiBold" FontSize="12"
+                               Foreground="#E65100"
+                               VerticalAlignment="Center" Margin="0,0,4,0"/>
+                </StackPanel>
                 <!-- Spinner — visible only while searching -->
                 <Canvas Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"
                         Visibility="{Binding IsSearching, Converter={StaticResource BoolToVis}}">
